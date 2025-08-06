@@ -2,10 +2,15 @@ import ContainerCard from '../components/ContainerCard'
 import ItemForm from '../components/ItemForm'
 import ContainerForm from '../components/ContainerForm'
 import { PrismaClient } from '@prisma/client'
+import { type Metadata } from 'next'
 import { Suspense } from 'react'
 
 const prisma = new PrismaClient()
-
+type PageProps = {
+  searchParams?: {
+    q?: string
+  }
+}
 // types
 export type ContainerWithDetails = {
   id: string
@@ -48,8 +53,8 @@ function buildContainerTree(containers: ContainerWithDetails[]): ContainerWithDe
   return roots
 }
 
-export default async function HomePage({ searchParams }: { searchParams: { q?: string } }) {
-  const q = searchParams.q?.toLowerCase() || ''
+export default async function HomePage({ searchParams }: PageProps ) {
+  const q = searchParams?.q?.toLowerCase() || ''
 
   const locations = await prisma.location.findMany({
     include: {
