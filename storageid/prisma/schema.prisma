@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Location {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  containers Container[]
+}
+
+model Container {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  location   Location?   @relation(fields: [locationId], references: [id])
+  locationId String?
+  parent     Container?  @relation("ContainerHierarchy", fields: [parentId], references: [id])
+  parentId   String?
+  children   Container[] @relation("ContainerHierarchy")
+  items      Item[]
+}
+
+model Item {
+  id          String    @id @default(cuid())
+  title       String    @unique
+  description String?
+  imageUrl    String?
+  container   Container @relation(fields: [containerId], references: [id])
+  containerId String
+}
