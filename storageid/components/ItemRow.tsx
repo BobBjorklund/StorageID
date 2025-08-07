@@ -73,7 +73,7 @@ async function moveToLocation() {
       <td className="p-2 border">
         {/* Move to container */}
         <select
-          value={targetContainerId}
+          value={targetContainerId ?? ''}
           onChange={e => setTargetContainerId(e.target.value)}
           className="border p-1 rounded"
         >
