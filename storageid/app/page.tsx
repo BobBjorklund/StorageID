@@ -1,35 +1,11 @@
+'use client'
+
+import { useSearchParams } from 'next/navigation'
 import ContainerCard from '../components/ContainerCard'
 import ItemForm from '../components/ItemForm'
 import ContainerForm from '../components/ContainerForm'
-import { PrismaClient } from '@prisma/client'
-
-
-const prisma = new PrismaClient()
-type PageProps = {
-  searchParams?: {
-    q?: string
-  }
-}
-// types
-export type ContainerWithDetails = {
-  id: string
-  name: string
-  locationId: string | null
-  parentId: string | null
-  location?: {
-    id: string
-    name: string
-  } | null
-  items: {
-    id: string
-    title: string
-    description: string | null
-    imageUrl: string | null
-    containerId: string
-  }[]
-  parent?: ContainerWithDetails | null
-  children?: ContainerWithDetails[]
-}
+import { useEffect, useState } from 'react'
+import { ContainerWithDetails } from './types'
 
 function buildContainerTree(containers: ContainerWithDetails[]): ContainerWithDetails[] {
   const containerMap = new Map<string, ContainerWithDetails>()
@@ -52,28 +28,43 @@ function buildContainerTree(containers: ContainerWithDetails[]): ContainerWithDe
   return roots
 }
 
-export default async function HomePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  const q = typeof searchParams?.q === 'string' ? searchParams.q.toLowerCase() : ''
+function flattenContainers(containers: ContainerWithDetails[]): ContainerWithDetails[] {
+  const result: ContainerWithDetails[] = []
 
-  const locations = await prisma.location.findMany({
-    include: {
-      containers: {
-        include: {
-          location: true,
-          parent: true,
-          items: true,
-        },
-      },
-    },
-  })
+  function recurse(container: ContainerWithDetails) {
+    result.push(container)
+    container.children?.forEach(recurse)
+  }
 
-  const allContainers = await prisma.container.findMany({
-    select: { id: true, name: true, locationId: true },
-  })
+  containers.forEach(recurse)
+  return result
+}
 
-  const allLocations = await prisma.location.findMany({
-    select: { id: true, name: true },
-  })
+export default function HomePage() {
+  const searchParams = useSearchParams()
+  const q = searchParams.get('q')?.toLowerCase() || ''
+
+  const [data, setData] = useState<{
+    locations: {
+      id: string
+      name: string
+      containers: ContainerWithDetails[]
+    }[]
+    allContainers: { id: string; name: string; locationId: string | null }[]
+    allLocations: { id: string; name: string }[]
+  } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/storage')
+      .then(res => res.json())
+      .then(setData)
+  }, [])
+
+  if (!data) {
+    return <div className="p-4">Loading...</div>
+  }
+
+  const { locations, allContainers, allLocations } = data
 
   return (
     <main className="max-w-5xl mx-auto p-4 sm:p-6">
@@ -104,18 +95,19 @@ export default async function HomePage({ searchParams }: { searchParams?: Record
       </details>
 
       {locations.map(location => {
-        const tree = buildContainerTree(
-          (location.containers as ContainerWithDetails[]).filter(container => {
-            if (!q) return true
-            return (
-              container.name.toLowerCase().includes(q) ||
-              container.items.some(item =>
-                item.title.toLowerCase().includes(q) ||
-                (item.description?.toLowerCase().includes(q) ?? false)
-              )
+        const filteredContainers = location.containers.filter(container => {
+          if (!q) return true
+          return (
+            container.name.toLowerCase().includes(q) ||
+            container.items.some(item =>
+              item.title.toLowerCase().includes(q) ||
+              (item.description?.toLowerCase().includes(q) ?? false)
             )
-          })
-        )
+          )
+        })
+
+        const tree = buildContainerTree(filteredContainers)
+        const flatLocationContainers = flattenContainers(tree)
 
         return (
           <div key={location.id} className="mb-10">
@@ -126,7 +118,7 @@ export default async function HomePage({ searchParams }: { searchParams?: Record
                 <ContainerCard
                   key={container.id}
                   container={container}
-                  allContainers={allContainers.filter(c => c.locationId === location.id)}
+                  allContainers={flatLocationContainers}
                 />
               ))
             ) : (
