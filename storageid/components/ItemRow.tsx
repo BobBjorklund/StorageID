@@ -125,12 +125,11 @@ async function moveToLocation() {
           Move to Location
         </button>
       </td>
-      <td>
+      <td className="p-2 border">
         <button
   onClick={() => deleteItem(item.id)}
-  className="ml-2 px-2 py-1 text-sm bg-red-500 text-white rounded"
->
-  Delete Item
+  className="ml-2 px-2 py-1 text-sm bg-red-500 text-white rounded">
+  Delete
 </button>
 
       </td>
