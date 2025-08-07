@@ -1,7 +1,7 @@
 // components/ContainerCard.tsx
 'use client'
-import { useState } from 'react'
-import {Item}  from '@prisma/client'
+// import { useState } from 'react'
+// import { Item } from '@prisma/client'
 import ItemRow from './ItemRow'
 import { ContainerWithDetails } from '@/app/types'
 
@@ -18,6 +18,7 @@ async function moveToLocation(containerId: string, locationId: string) {
     alert('Failed to move container.')
   }
 }
+
 async function deleteContainer(containerId: string) {
   if (!confirm('Are you sure you want to delete this container and all its items?')) return
   const res = await fetch(`/api/containers/delete`, {
@@ -48,44 +49,60 @@ export default function ContainerCard({
   }
 
   const hierarchy = getHierarchy(container)
-console.log('allLocations containercard', allLocations)
+
   return (
     <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-      <h2 className="text-xl font-bold text-gray-800">{container.name}</h2>
+      <h2 className="text-xl font-bold text-gray-800 break-words">{container.name}</h2>
       <p className="text-gray-600 text-sm">
         Location: <span className="font-semibold">{container.location?.name || 'Unknown'}</span>
       </p>
 
       {hierarchy.length > 1 && (
-        <p className="text-sm text-gray-500 mt-2">Path: {hierarchy.join(' → ')}</p>
+        <p className="text-sm text-gray-500 mt-2 break-words">
+          Path: {hierarchy.join(' → ')}
+        </p>
       )}
-  {allLocations?.length > 0 && (
-  <div className="mt-2 text-sm">
-    <label className="font-medium">Move to Location: </label>
-    <select value={container.locationId?? ''} onChange={e => moveToLocation(container.id, e.target.value)}  className="w-full border rounded p-2">
-          {allLocations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
-        </select>
-        <button
-  onClick={() => deleteContainer(container.id)}
-  className="ml-2 px-2 py-1 text-sm bg-red-600 text-white rounded"
->
-  Delete Container
-</button>
-  </div>
-)}
-      <div className="mt-4">
+
+      {allLocations?.length > 0 && (
+        <div className="mt-4 text-sm flex flex-col sm:flex-row gap-2 sm:items-center">
+          <label className="font-medium shrink-0">Move to Location:</label>
+          <select
+            value={container.locationId ?? ''}
+            onChange={e => moveToLocation(container.id, e.target.value)}
+            className="border rounded p-2 w-full sm:w-auto"
+          >
+            {allLocations.map(loc => (
+              <option key={loc.id} value={loc.id}>{loc.name}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => deleteContainer(container.id)}
+            className="px-3 py-1 text-sm bg-red-600 text-white rounded w-full sm:w-auto"
+          >
+            Delete Container
+          </button>
+        </div>
+      )}
+
+      <div className="mt-4 overflow-x-auto">
         <h3 className="text-md font-semibold text-gray-700 mb-2">Items:</h3>
         {container.items.length ? (
-          <table className="w-full text-left text-sm border">
+          <table className="min-w-full text-left text-sm border">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-2 border">Title</th>
-                <th className="p-2 border">Description</th>
+                <th className="p-2 border whitespace-nowrap">Title</th>
+                <th className="p-2 border whitespace-nowrap">Description</th>
               </tr>
             </thead>
             <tbody>
               {container.items.map(item => (
-                <ItemRow key={item.id} item={item} containers={allContainers} locations={allLocations} />
+                <ItemRow
+                  key={item.id}
+                  item={item}
+                  containers={allContainers}
+                  locations={allLocations}
+                />
               ))}
             </tbody>
           </table>
@@ -95,7 +112,7 @@ console.log('allLocations containercard', allLocations)
       </div>
 
       {container.children && container.children.length > 0 && (
-        <div className="ml-6 mt-4 border-l pl-4 border-gray-300">
+        <div className="mt-4 border-l pl-4 border-gray-300">
           {container.children.map(child => (
             <ContainerCard
               key={child.id}
