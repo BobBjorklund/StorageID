@@ -1,7 +1,8 @@
-// app/api/items/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '../../lib/db/prisma'
+import { ContainerWithDetails } from '@/app/types'
 
+// GET: Fetch all data for UI
 export async function GET() {
   try {
     const containers = await prisma.container.findMany({
@@ -19,8 +20,8 @@ export async function GET() {
     })
 
     // Group containers under their location
-    const locationMap = new Map<string, { id: string; name: string; containers: any[] }>()
-    locations.forEach((loc:any) => {
+    const locationMap = new Map<string, { id: string; name: string; containers: ContainerWithDetails[] }>()
+    locations.forEach((loc) => {
       locationMap.set(loc.id, { ...loc, containers: [] })
     })
 
@@ -32,7 +33,7 @@ export async function GET() {
 
     const response = {
       locations: Array.from(locationMap.values()),
-      allContainers: containers.map((c:any) => ({
+      allContainers: containers.map((c) => ({
         id: c.id,
         name: c.name,
         locationId: c.locationId,
@@ -44,6 +45,34 @@ export async function GET() {
     return NextResponse.json(response)
   } catch (err) {
     console.error('❌ Failed to fetch data:', err)
+    return new NextResponse('Internal Server Error', { status: 500 })
+  }
+}
+
+// POST: Create a new item
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const { title, description, imageUrl, containerId } = body
+
+    if (!title || !containerId) {
+      return new NextResponse('Missing required fields', { status: 400 })
+    }
+
+    const newItem = await prisma.item.create({
+      data: {
+        title,
+        description,
+        imageUrl,
+        container: {
+          connect: { id: containerId },
+        },
+      },
+    })
+
+    return NextResponse.json(newItem)
+  } catch (err) {
+    console.error('❌ Failed to create item:', err)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
