@@ -12,7 +12,7 @@ export type ContainerWithDetails = {
     title: string
     description: string | null
     imageUrl: string | null
-    containerId: string
+    containerId: string | null
   }[]
   parent?: ContainerWithDetails | null
   children?: ContainerWithDetails[]
