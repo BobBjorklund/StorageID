@@ -1,22 +1,49 @@
-import { PrismaClient } from '@prisma/client'
+// app/api/items/route.ts
+import { NextResponse } from 'next/server'
+import { prisma } from '../../lib/db/prisma'
 
-const prisma = new PrismaClient()
+export async function GET() {
+  try {
+    const containers = await prisma.container.findMany({
+      include: {
+        items: true,
+        location: true,
+      },
+    })
 
-export async function POST(req: Request) {
-  const { title, description, imageUrl, containerId } = await req.json()
+    const locations = await prisma.location.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    })
 
-  if (!title || !containerId) {
-    return new Response('Missing required fields', { status: 400 })
+    // Group containers under their location
+    const locationMap = new Map<string, { id: string; name: string; containers: any[] }>()
+    locations.forEach((loc:any) => {
+      locationMap.set(loc.id, { ...loc, containers: [] })
+    })
+
+    for (const c of containers) {
+      if (c.locationId && locationMap.has(c.locationId)) {
+        locationMap.get(c.locationId)!.containers.push({ ...c, children: [], parent: null })
+      }
+    }
+
+    const response = {
+      locations: Array.from(locationMap.values()),
+      allContainers: containers.map((c:any) => ({
+        id: c.id,
+        name: c.name,
+        locationId: c.locationId,
+      })),
+      allLocations: locations,
+    }
+
+    console.log('✅ Response composed')
+    return NextResponse.json(response)
+  } catch (err) {
+    console.error('❌ Failed to fetch data:', err)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
-
-  const item = await prisma.item.create({
-    data: {
-      title,
-      description,
-      imageUrl,
-      containerId,
-    },
-  })
-
-  return Response.json(item)
 }

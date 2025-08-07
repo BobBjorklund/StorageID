@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 
-export default function ItemForm({ containers }: { containers: { id: string; name: string }[] }) {
+export default function ItemForm({
+  containers = [],
+}: {
+  containers: { id: string; name: string }[]
+}) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -28,14 +32,17 @@ export default function ItemForm({ containers }: { containers: { id: string; nam
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded-xl shadow mb-8 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-4 rounded-xl shadow mb-8 space-y-4"
+    >
       <h3 className="text-xl font-semibold">Add New Item</h3>
 
       <div>
         <label className="block text-sm font-medium">Title</label>
         <input
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
           required
           className="w-full border rounded p-2"
         />
@@ -45,30 +52,46 @@ export default function ItemForm({ containers }: { containers: { id: string; nam
         <label className="block text-sm font-medium">Description</label>
         <input
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={(e) => setDescription(e.target.value)}
           className="w-full border rounded p-2"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium">Image URL</label>
+        <label className="block text-sm font-medium">Image URL (optional)</label>
         <input
           value={imageUrl}
-          onChange={e => setImageUrl(e.target.value)}
+          onChange={(e) => setImageUrl(e.target.value)}
           className="w-full border rounded p-2"
+          placeholder="Paste image URL here"
         />
+        {imageUrl && (
+          <div className="mt-2">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="max-h-32 rounded border"
+            />
+          </div>
+        )}
       </div>
 
       <div>
         <label className="block text-sm font-medium">Container</label>
         <select
           value={containerId}
-          onChange={e => setContainerId(e.target.value)}
+          onChange={(e) => setContainerId(e.target.value)}
           className="w-full border rounded p-2"
         >
-          {containers.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
+          {containers.length > 0 ? (
+            containers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))
+          ) : (
+            <option disabled>No containers available</option>
+          )}
         </select>
       </div>
 

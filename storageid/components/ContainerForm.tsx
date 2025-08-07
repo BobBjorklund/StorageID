@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 
-export default function ContainerForm({ containers, locations }: {
+export default function ContainerForm({
+  containers = [],
+  locations = [],
+}: {
   containers: { id: string; name: string }[]
   locations: { id: string; name: string }[]
 }) {
@@ -29,14 +32,17 @@ export default function ContainerForm({ containers, locations }: {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded-xl shadow mb-8 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-4 rounded-xl shadow mb-8 space-y-4"
+    >
       <h3 className="text-xl font-semibold">Add New Container</h3>
 
       <div>
         <label className="block text-sm font-medium">Name</label>
         <input
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           required
           className="w-full border rounded p-2"
         />
@@ -46,12 +52,18 @@ export default function ContainerForm({ containers, locations }: {
         <label className="block text-sm font-medium">Location</label>
         <select
           value={locationId}
-          onChange={e => setLocationId(e.target.value)}
+          onChange={(e) => setLocationId(e.target.value)}
           className="w-full border rounded p-2"
         >
-          {locations.map(loc => (
-            <option key={loc.id} value={loc.id}>{loc.name}</option>
-          ))}
+          {locations.length > 0 ? (
+            locations.map((loc) => (
+              <option key={loc.id} value={loc.id}>
+                {loc.name}
+              </option>
+            ))
+          ) : (
+            <option disabled>No locations available</option>
+          )}
         </select>
       </div>
 
@@ -59,13 +71,19 @@ export default function ContainerForm({ containers, locations }: {
         <label className="block text-sm font-medium">Parent Container (optional)</label>
         <select
           value={parentId}
-          onChange={e => setParentId(e.target.value)}
+          onChange={(e) => setParentId(e.target.value)}
           className="w-full border rounded p-2"
         >
           <option value="">None</option>
-          {containers.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
+          {containers.length > 0 ? (
+            containers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))
+          ) : (
+            <option disabled>No containers available</option>
+          )}
         </select>
       </div>
 

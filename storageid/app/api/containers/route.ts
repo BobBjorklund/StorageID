@@ -16,10 +16,26 @@ export async function POST(req: Request) {
         locationId: locationId || null,
       },
     })
-
     return NextResponse.json(newContainer)
   } catch (error) {
     console.error('Error creating container:', error)
     return NextResponse.json({ error: 'Failed to create container' }, { status: 500 })
+  }
+}
+
+export async function GET() {
+  try {
+    const containers = await prisma.container.findMany({
+      select: {
+        id: true,
+        name: true,
+        locationId: true,
+      },
+    })
+    console.log('Containers:', containers)
+    return NextResponse.json(containers)
+  } catch (error) {
+    console.error('Error fetching containers:', error)
+    return NextResponse.json({ error: 'Failed to fetch containers' }, { status: 500 })
   }
 }
