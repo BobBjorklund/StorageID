@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Item } from '@prisma/client'
-
+import Uploader from './UploadButton'
 export default function ItemRow({
   item,
   containers,
@@ -91,7 +91,7 @@ export default function ItemRow({
           onChange={(e) => setTargetContainerId(e.target.value)}
           className="border rounded px-2 py-1 text-sm"
         >
-          {containers.map((c) => (
+          {containers?.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>
@@ -113,7 +113,7 @@ export default function ItemRow({
           className="border rounded px-2 py-1 text-sm"
         >
           <option value="">Choose location</option>
-          {locations.map((loc) => (
+          {locations?.map((loc) => (
             <option key={loc.id} value={loc.id}>
               {loc.name}
             </option>
@@ -126,7 +126,10 @@ export default function ItemRow({
           Move
         </button>
       </div>
-
+          <div className='flex gap-2'>
+            <h1>Upload an Image</h1>
+      <Uploader />
+          </div>
       <div className="flex gap-2">
         <button
           onClick={() => deleteItem(item.id)}

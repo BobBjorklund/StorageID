@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",
@@ -33,5 +33,20 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "resolutions": {
+  "effect": "3.16.12"
+},
+  "overrides": {
+    "effect": "3.16.12",
+    "@uploadthing/shared": {
+      "effect": "3.16.12"
+    },
+    "uploadthing": {
+      "effect": "3.16.12",
+      "@effect/platform": {
+        "effect": "3.16.12"
+      }
+    }
   }
 }

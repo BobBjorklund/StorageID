@@ -1,73 +1,72 @@
-// app/page.tsx
 'use client'
 
-import { useStorageData } from './lib/db/data-fetch'
-import ContainerCard from '@/components/ContainerCard'
-import ContainerForm from '@/components/ContainerForm'
-import ItemForm from '@/components/ItemForm'
-import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import ContainerCard from '../components/ContainerCard'
+import ItemForm from '../components/ItemForm'
+import ContainerForm from '../components/ContainerForm'
+import { useEffect, useState } from 'react'
 import { ContainerWithDetails } from './types'
-import ContainerLocationMover from '@/components/ContainerLocationMover'
-import ItemLocationMover from '@/components/ItemLocationMover'
 
 function buildContainerTree(containers: ContainerWithDetails[]): ContainerWithDetails[] {
-  const map = new Map<string, ContainerWithDetails>()
+  const containerMap = new Map<string, ContainerWithDetails>()
   const roots: ContainerWithDetails[] = []
 
-  containers.forEach(c => {
-    c.children = []
-    map.set(c.id, c)
+  containers.forEach(container => {
+    container.children = []
+    containerMap.set(container.id, container)
   })
 
-  containers.forEach(c => {
-    if (c.parentId) {
-      const parent = map.get(c.parentId)
-      parent?.children?.push(c)
-      c.parent = parent ?? null
+  containers.forEach(container => {
+    if (container.parentId) {
+      const parent = containerMap.get(container.parentId)
+      parent?.children?.push(container)
     } else {
-      roots.push(c)
+      roots.push(container)
     }
   })
 
   return roots
 }
 
-function flattenContainers(containers: ContainerWithDetails[]): ContainerWithDetails[] {
-  const result: ContainerWithDetails[] = []
-  function recurse(c: ContainerWithDetails) {
-    result.push(c)
-    c.children?.forEach(recurse)
-  }
-  containers.forEach(recurse)
-  return result
-}
-
 export default function HomePage() {
-  const data = useStorageData()
-  const [q, setQ] = useState('')
+  const searchParams = useSearchParams()
+  const q = searchParams.get('q')?.toLowerCase() || ''
 
-  if (!data) return <div className="p-4">Loading...</div>
+  const [data, setData] = useState<{
+    locations: {
+      id: string
+      name: string
+      containers: ContainerWithDetails[]
+    }[]
+    allContainers: { id: string; name: string; locationId: string | null }[]
+    allLocations: { id: string; name: string }[]
+  } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/storage')
+      .then(res => res.json())
+      .then(setData)
+  }, [])
+
+  if (!data) {
+    return <div className="p-4">Loading...</div>
+  }
 
   const { locations, allContainers, allLocations } = data
-  const flattenedItems = locations
-  .flatMap(loc => loc.containers)
-  .flatMap(c => c.items)
-  .map(item => ({
-    id: item.id,
-    title: item.title,
-  }))
 
   return (
     <main className="max-w-5xl mx-auto p-4 sm:p-6">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">All Storage Locations</h1>
 
-      <input
-        type="text"
-        placeholder="Search items..."
-        value={q}
-        onChange={e => setQ(e.target.value.toLowerCase())}
-        className="w-full mb-6 p-2 border rounded-md text-sm"
-      />
+      <form method="GET" className="mb-6">
+        <input
+          type="text"
+          name="q"
+          placeholder="Search items..."
+          defaultValue={q}
+          className="w-full p-2 border rounded-md text-sm"
+        />
+      </form>
 
       <details className="mb-4">
         <summary className="cursor-pointer text-blue-600 hover:underline">+ Add New Item</summary>
@@ -82,29 +81,35 @@ export default function HomePage() {
           <ContainerForm containers={allContainers} locations={allLocations} />
         </div>
       </details>
-<ItemLocationMover items={flattenedItems} locations={allLocations} />
-<ContainerLocationMover containers={allContainers} locations={allLocations} />
+
       {locations.map(location => {
-        const filteredContainers = location.containers.filter(c =>
-          !q ||
-          c.name.toLowerCase().includes(q) ||
-          c.items.some(item =>
-            item.title.toLowerCase().includes(q) ||
-            (item.description?.toLowerCase().includes(q) ?? false)
-          )
+        const tree = buildContainerTree(
+          location.containers.filter(container => {
+            if (!q) return true
+            return (
+              container.name.toLowerCase().includes(q) ||
+              container.items.some(item =>
+                item.title.toLowerCase().includes(q) ||
+                (item.description?.toLowerCase().includes(q) ?? false)
+              )
+            )
+          })
         )
 
-        const tree = buildContainerTree(filteredContainers)
-        const flat = flattenContainers(tree)
-        console.log("tree length / allLocations", tree.length, allLocations)
         return (
           <div key={location.id} className="mb-10">
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">{location.name}</h2>
-            {tree.length ? tree.map(c => (
-              <ContainerCard key={c.id} container={c} allContainers={flat} allLocations={allLocations} />
-              
-            )) : (
-              <p className="text-sm italic text-gray-500">No matching containers.</p>
+
+            {tree.length > 0 ? (
+              tree.map(container => (
+                <ContainerCard
+                  key={container.id}
+                  container={container}
+                  
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 italic">No containers match your search.</p>
             )}
           </div>
         )
