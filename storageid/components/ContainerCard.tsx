@@ -56,7 +56,7 @@ console.log('allLocations containercard', allLocations)
   {allLocations?.length > 0 && (
   <div className="mt-2 text-sm">
     <label className="font-medium">Move to Location: </label>
-    <select value={container.locationId} onChange={e => moveToLocation(container.id, e.target.value)}  className="w-full border rounded p-2">
+    <select value={container.locationId?? ''} onChange={e => moveToLocation(container.id, e.target.value)}  className="w-full border rounded p-2">
           {allLocations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
         </select>
   </div>
