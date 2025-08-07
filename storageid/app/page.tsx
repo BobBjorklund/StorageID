@@ -1,6 +1,5 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
 import ContainerCard from '../components/ContainerCard'
 import ItemForm from '../components/ItemForm'
 import ContainerForm from '../components/ContainerForm'
@@ -41,8 +40,7 @@ function flattenContainers(containers: ContainerWithDetails[]): ContainerWithDet
 }
 
 export default function HomePage() {
-  const searchParams = useSearchParams()
-  const q = searchParams.get('q')?.toLowerCase() || ''
+  const [q, setQ] = useState('')
 
   const [data, setData] = useState<{
     locations: {
@@ -70,12 +68,13 @@ export default function HomePage() {
     <main className="max-w-5xl mx-auto p-4 sm:p-6">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">All Storage Locations</h1>
 
-      <form method="GET" className="mb-6">
+      <form method="GET" className="mb-6" onSubmit={e => e.preventDefault()}>
         <input
           type="text"
           name="q"
           placeholder="Search items..."
-          defaultValue={q}
+          value={q}
+          onChange={e => setQ(e.target.value.toLowerCase())}
           className="w-full p-2 border rounded-md text-sm"
         />
       </form>
