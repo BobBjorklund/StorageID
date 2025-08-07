@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 export default function ItemForm({
-  containers = [],
+  containers = []
 }: {
   containers: { id: string; name: string }[]
 }) {
@@ -18,7 +18,7 @@ export default function ItemForm({
     const res = await fetch('/api/items', {
       method: 'POST',
       body: JSON.stringify({ title, description, imageUrl, containerId }),
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     })
 
     if (res.ok) {
@@ -34,57 +34,57 @@ export default function ItemForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-4 rounded-xl shadow mb-8 space-y-4"
+      className="bg-white p-4 sm:p-6 rounded-xl shadow mb-8 space-y-5"
     >
-      <h3 className="text-xl font-semibold">Add New Item</h3>
+      <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Add New Item</h3>
 
-      <div>
-        <label className="block text-sm font-medium">Title</label>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Title</label>
         <input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={e => setTitle(e.target.value)}
           required
-          className="w-full border rounded p-2"
+          className="w-full border rounded p-2 text-sm"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Description</label>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Description</label>
         <input
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded p-2"
+          onChange={e => setDescription(e.target.value)}
+          className="w-full border rounded p-2 text-sm"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Image URL (optional)</label>
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
         <input
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border rounded p-2"
+          onChange={e => setImageUrl(e.target.value)}
+          className="w-full border rounded p-2 text-sm"
           placeholder="Paste image URL here"
         />
         {imageUrl && (
-          <div className="mt-2">
+          <div className="mt-1 max-w-xs sm:max-w-sm">
             <img
               src={imageUrl}
               alt="Preview"
-              className="max-h-32 rounded border"
+              className="rounded border w-full h-auto object-contain"
             />
           </div>
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Container</label>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Container</label>
         <select
           value={containerId}
-          onChange={(e) => setContainerId(e.target.value)}
-          className="w-full border rounded p-2"
+          onChange={e => setContainerId(e.target.value)}
+          className="w-full border rounded p-2 text-sm"
         >
           {containers.length > 0 ? (
-            containers.map((c) => (
+            containers.map(c => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -97,7 +97,7 @@ export default function ItemForm({
 
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
       >
         Add Item
       </button>

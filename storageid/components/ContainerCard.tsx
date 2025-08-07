@@ -88,14 +88,7 @@ export default function ContainerCard({
       <div className="mt-4 overflow-x-auto">
         <h3 className="text-md font-semibold text-gray-700 mb-2">Items:</h3>
         {container.items.length ? (
-          <table className="min-w-full text-left text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border whitespace-nowrap">Title</th>
-                <th className="p-2 border whitespace-nowrap">Description</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
               {container.items.map(item => (
                 <ItemRow
                   key={item.id}
@@ -104,8 +97,7 @@ export default function ContainerCard({
                   locations={allLocations}
                 />
               ))}
-            </tbody>
-          </table>
+</>
         ) : (
           <p className="text-sm italic text-gray-500">This container is currently empty.</p>
         )}

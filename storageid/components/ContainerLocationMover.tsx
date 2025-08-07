@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 
-export default function ContainerLocationMover({ containers, locations }: {
+export default function ContainerLocationMover({
+  containers,
+  locations,
+}: {
   containers: { id: string; name: string }[]
   locations: { id: string; name: string }[]
 }) {
@@ -25,24 +28,52 @@ export default function ContainerLocationMover({ containers, locations }: {
   }
 
   return (
-    <form onSubmit={handleMove} className="bg-white p-4 rounded-xl shadow mb-8 space-y-4">
-      <h3 className="text-xl font-semibold">Move Container to Location</h3>
+    <form
+      onSubmit={handleMove}
+      className="bg-white p-4 sm:p-6 rounded-xl shadow mb-8 space-y-5"
+    >
+      <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+        Move Container to Location
+      </h3>
 
-      <div>
-        <label className="block text-sm font-medium">Select Container</label>
-        <select value={containerId} onChange={e => setContainerId(e.target.value)} className="w-full border rounded p-2">
-          {containers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">
+          Select Container
+        </label>
+        <select
+          value={containerId}
+          onChange={(e) => setContainerId(e.target.value)}
+          className="w-full border rounded p-2 text-sm"
+        >
+          {containers.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
         </select>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Select Location</label>
-        <select value={locationId} onChange={e => setLocationId(e.target.value)} className="w-full border rounded p-2">
-          {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">
+          Select Location
+        </label>
+        <select
+          value={locationId}
+          onChange={(e) => setLocationId(e.target.value)}
+          className="w-full border rounded p-2 text-sm"
+        >
+          {locations.map((loc) => (
+            <option key={loc.id} value={loc.id}>
+              {loc.name}
+            </option>
+          ))}
         </select>
       </div>
 
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      <button
+        type="submit"
+        className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
+      >
         Move
       </button>
     </form>

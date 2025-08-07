@@ -34,26 +34,26 @@ export default function ContainerForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-4 rounded-xl shadow mb-8 space-y-4"
+      className="bg-white p-4 sm:p-6 rounded-xl shadow mb-8 space-y-5"
     >
-      <h3 className="text-xl font-semibold">Add New Container</h3>
+      <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Add New Container</h3>
 
-      <div>
-        <label className="block text-sm font-medium">Name</label>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full border rounded p-2"
+          className="w-full border rounded p-2 text-sm"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Location</label>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Location</label>
         <select
           value={locationId}
           onChange={(e) => setLocationId(e.target.value)}
-          className="w-full border rounded p-2"
+          className="w-full border rounded p-2 text-sm"
         >
           {locations.length > 0 ? (
             locations.map((loc) => (
@@ -67,12 +67,14 @@ export default function ContainerForm({
         </select>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium">Parent Container (optional)</label>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">
+          Parent Container (optional)
+        </label>
         <select
           value={parentId}
           onChange={(e) => setParentId(e.target.value)}
-          className="w-full border rounded p-2"
+          className="w-full border rounded p-2 text-sm"
         >
           <option value="">None</option>
           {containers.length > 0 ? (
@@ -89,7 +91,7 @@ export default function ContainerForm({
 
       <button
         type="submit"
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
       >
         Add Container
       </button>

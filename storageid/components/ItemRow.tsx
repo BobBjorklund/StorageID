@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { Item } from '@prisma/client'
 
-
-
-export default function ItemRow({ item, containers, locations }: {
+export default function ItemRow({
+  item,
+  containers,
+  locations
+}: {
   item: Item
   containers: { id: string; name: string }[]
   locations: { id: string; name: string }[]
@@ -17,128 +19,156 @@ export default function ItemRow({ item, containers, locations }: {
     const res = await fetch('/api/items/move', {
       method: 'POST',
       body: JSON.stringify({ itemId: item.id, containerId: targetContainerId }),
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     })
+    alert(res.ok ? 'Moved to container!' : 'Error moving item to container')
+  }
 
+  async function deleteItem(itemId: string) {
+    if (!confirm('Delete this item?')) return
+    const res = await fetch(`/api/items/delete`, {
+      method: 'POST',
+      body: JSON.stringify({ itemId }),
+      headers: { 'Content-Type': 'application/json' }
+    })
     if (res.ok) {
-      alert('Moved to container!')
+      alert('Item deleted!')
+      location.reload()
     } else {
-      alert('Error moving item to container')
+      alert('Could not delete item')
     }
   }
-  async function deleteItem(itemId: string) {
-  if (!confirm('Delete this item?')) return
-  const res = await fetch(`/api/items/delete`, {
-    method: 'POST',
-    body: JSON.stringify({ itemId }),
-    headers: { 'Content-Type': 'application/json' },
-  })
-  if (res.ok) {
-    alert('Item deleted!')
-    location.reload()
-  } else {
-    alert('Could not delete item')
+
+  async function updateQty(itemId: string, quantity: number) {
+    const res = await fetch('/api/items/update-quantity', {
+      method: 'POST',
+      body: JSON.stringify({ itemId, quantity }),
+      headers: { 'Content-Type': 'application/json' }
+    })
+    if (!res.ok) alert('Failed to update quantity')
+    else location.reload()
   }
-}
-async function updateQty(itemId: string, quantity: number) {
-  const res = await fetch('/api/items/update-quantity', {
-    method: 'POST',
-    body: JSON.stringify({ itemId, quantity }),
-    headers: { 'Content-Type': 'application/json' },
-  })
-  if (!res.ok) alert('Failed to update quantity')
-  else location.reload()
-}
 
-async function moveToLocation() {
-  const selectedLoc = locations.find(loc => loc.id === targetLocationId)
-  if (!selectedLoc) return alert('No location selected')
+  async function moveToLocation() {
+    const selectedLoc = locations.find(loc => loc.id === targetLocationId)
+    if (!selectedLoc) return alert('No location selected')
 
-  const res = await fetch('/api/doompile', {
-    method: 'POST',
-    body: JSON.stringify({
-      locationId: selectedLoc.id,
-      locationName: selectedLoc.name,
-    }),
-    headers: { 'Content-Type': 'application/json' },
-  })
+    const res = await fetch('/api/doompile', {
+      method: 'POST',
+      body: JSON.stringify({
+        locationId: selectedLoc.id,
+        locationName: selectedLoc.name
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    })
 
-  if (!res.ok) return alert('Failed to get/create DOOMPILE')
+    if (!res.ok) return alert('Failed to get/create DOOMPILE')
 
-  const { id: doompileId } = await res.json()
+    const { id: doompileId } = await res.json()
 
-  // Now move the item into that DOOMPILE
-  const moveRes = await fetch('/api/items/move', {
-    method: 'POST',
-    body: JSON.stringify({
-      itemId: item.id,
-      containerId: doompileId,
-    }),
-    headers: { 'Content-Type': 'application/json' },
-  })
+    const moveRes = await fetch('/api/items/move', {
+      method: 'POST',
+      body: JSON.stringify({
+        itemId: item.id,
+        containerId: doompileId
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    })
 
-  if (moveRes.ok) {
-    alert(`Item dropped into ${selectedLoc.name}_DOOMPILE`)
-  } else {
-    alert('Move failed')
+    alert(moveRes.ok ? `Item dropped into ${selectedLoc.name}_DOOMPILE` : 'Move failed')
   }
-}
- 
 
   return (
-    <tr className="hover:bg-gray-50">
-      <td className="p-2 border">{item.title}</td>
-      <td className="p-2 border">{item.description || '-'}</td>
-      <td className="p-2 border">
-        {item.imageUrl ? (
-          <img src={item.imageUrl} alt="Item" className="h-12 rounded object-cover" />
-        ) : <span>-</span>}
-      </td>
-      <td className="p-2 border">
-        {/* Move to container */}
+  <div className="border rounded-xl p-4 mb-4 shadow-sm bg-white flex flex-col sm:flex-row sm:items-start gap-4">
+    {/* Left side: Title + controls */}
+    <div className="flex-1 space-y-2">
+      <p className="text-base font-semibold">Title: {item.title}</p>
+
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium">Move to Container:</label>
         <select
           value={targetContainerId ?? ''}
-          onChange={e => setTargetContainerId(e.target.value)}
-          className="border p-1 rounded"
+          onChange={(e) => setTargetContainerId(e.target.value)}
+          className="border rounded px-2 py-1 text-sm"
         >
-          {containers.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+          {containers.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
           ))}
         </select>
-        <button onClick={moveToContainer} className="ml-2 px-2 py-1 text-sm bg-indigo-600 text-white rounded">
+        <button
+          onClick={moveToContainer}
+          className="text-white bg-indigo-600 hover:bg-indigo-700 px-2 py-1 rounded text-sm"
+        >
           Move
         </button>
-      </td>
-      <td className="p-2 border">
-        {/* Move to location */}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium">Move to Location:</label>
         <select
           value={targetLocationId}
-          onChange={e => setTargetLocationId(e.target.value)}
-          className="border p-1 rounded"
+          onChange={(e) => setTargetLocationId(e.target.value)}
+          className="border rounded px-2 py-1 text-sm"
         >
           <option value="">Choose location</option>
-          {locations?.length > 0 && locations.map(loc => (
-  <option key={loc.id} value={loc.id}>{loc.name}</option>
-))}
+          {locations.map((loc) => (
+            <option key={loc.id} value={loc.id}>
+              {loc.name}
+            </option>
+          ))}
         </select>
-        <button onClick={moveToLocation} className="ml-2 px-2 py-1 text-sm bg-green-600 text-white rounded">
-          Move to Location
-        </button>
-      </td>
-      <td className="p-2 border">
         <button
-  onClick={() => deleteItem(item.id)}
-  className="ml-2 px-2 py-1 text-sm bg-red-500 text-white rounded">
-  Delete
-</button>
+          onClick={moveToLocation}
+          className="text-white bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-sm"
+        >
+          Move
+        </button>
+      </div>
 
-      </td>
-      <td className="p-2 border text-center">{item.quantity}</td>
-<td className="p-2 border">
-  <button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-2 bg-green-500 text-white rounded">+</button>
-  <button onClick={() => updateQty(item.id, item.quantity - 1)} className="ml-1 px-2 bg-yellow-500 text-white rounded">-</button>
-</td>
+      <div className="flex gap-2">
+        <button
+          onClick={() => deleteItem(item.id)}
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+        >
+          Delete
+        </button>
+        <div className="flex items-center gap-1">
+          <span className="font-medium">Qty:</span>
+          <button
+            onClick={() => updateQty(item.id, item.quantity + 1)}
+            className="bg-green-500 hover:bg-green-600 text-white px-2 rounded"
+          >
+            +
+          </button>
+          <span className="px-2">{item.quantity}</span>
+          <button
+            onClick={() => updateQty(item.id, item.quantity - 1)}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 rounded"
+          >
+            -
+          </button>
+        </div>
+      </div>
+    </div>
 
-    </tr>
-  )
+    {/* Right side: Image + Description */}
+    <div className="sm:w-1/3 border-l sm:pl-4 text-sm text-gray-600">
+      <p className="mb-2">
+        <span className="font-medium">Description:</span>{' '}
+        {item.description || <span className="italic text-gray-400">None</span>}
+      </p>
+      {item.imageUrl ? (
+        <img
+          src={item.imageUrl}
+          alt="Item"
+          className="rounded max-w-full max-h-32 object-contain border"
+        />
+      ) : (
+        <div className="italic text-gray-400">No image</div>
+      )}
+    </div>
+  </div>
+)
 }
