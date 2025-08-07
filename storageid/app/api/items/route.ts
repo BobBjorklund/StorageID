@@ -21,7 +21,7 @@ export async function GET() {
 
     // Group containers under their location
     const locationMap = new Map<string, { id: string; name: string; containers: ContainerWithDetails[] }>()
-    locations.forEach((loc) => {
+    locations.forEach((loc: { id: string; name: string }) => {
       locationMap.set(loc.id, { ...loc, containers: [] })
     })
 
@@ -33,7 +33,7 @@ export async function GET() {
 
     const response = {
       locations: Array.from(locationMap.values()),
-      allContainers: containers.map((c) => ({
+      allContainers: containers.map((c: ContainerWithDetails) => ({
         id: c.id,
         name: c.name,
         locationId: c.locationId,

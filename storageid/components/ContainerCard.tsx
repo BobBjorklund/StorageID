@@ -26,6 +26,20 @@ async function moveToLocation(containerId: string, locationId: string) {
     alert('Failed to move container.')
   }
 }
+async function deleteContainer(containerId: string) {
+  if (!confirm('Are you sure you want to delete this container and all its items?')) return
+  const res = await fetch(`/api/containers/delete`, {
+    method: 'POST',
+    body: JSON.stringify({ containerId }),
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (res.ok) {
+    alert('Deleted!')
+    location.reload()
+  } else {
+    alert('Failed to delete container.')
+  }
+}
 
 export default function ContainerCard({
   container,
@@ -59,6 +73,12 @@ console.log('allLocations containercard', allLocations)
     <select value={container.locationId?? ''} onChange={e => moveToLocation(container.id, e.target.value)}  className="w-full border rounded p-2">
           {allLocations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
         </select>
+        <button
+  onClick={() => deleteContainer(container.id)}
+  className="ml-2 px-2 py-1 text-sm bg-red-600 text-white rounded"
+>
+  Delete Container
+</button>
   </div>
 )}
       <div className="mt-4">

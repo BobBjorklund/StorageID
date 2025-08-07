@@ -25,11 +25,11 @@ model Container {
 }
 
 model Item {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   title       String
   description String?
   imageUrl    String?
-  containerId String?    // ✅ Nullable!
+  containerId String?
+  quantity    Int      @default(1)
   container   Container? @relation(fields: [containerId], references: [id])
 }
-

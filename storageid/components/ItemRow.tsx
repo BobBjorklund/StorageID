@@ -26,6 +26,30 @@ export default function ItemRow({ item, containers, locations }: {
       alert('Error moving item to container')
     }
   }
+  async function deleteItem(itemId: string) {
+  if (!confirm('Delete this item?')) return
+  const res = await fetch(`/api/items/delete`, {
+    method: 'POST',
+    body: JSON.stringify({ itemId }),
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (res.ok) {
+    alert('Item deleted!')
+    location.reload()
+  } else {
+    alert('Could not delete item')
+  }
+}
+async function updateQty(itemId: string, quantity: number) {
+  const res = await fetch('/api/items/update-quantity', {
+    method: 'POST',
+    body: JSON.stringify({ itemId, quantity }),
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) alert('Failed to update quantity')
+  else location.reload()
+}
+
 async function moveToLocation() {
   const selectedLoc = locations.find(loc => loc.id === targetLocationId)
   if (!selectedLoc) return alert('No location selected')
@@ -101,6 +125,21 @@ async function moveToLocation() {
           Move to Location
         </button>
       </td>
+      <td>
+        <button
+  onClick={() => deleteItem(item.id)}
+  className="ml-2 px-2 py-1 text-sm bg-red-500 text-white rounded"
+>
+  Delete Item
+</button>
+
+      </td>
+      <td className="p-2 border text-center">{item.quantity}</td>
+<td className="p-2 border">
+  <button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-2 bg-green-500 text-white rounded">+</button>
+  <button onClick={() => updateQty(item.id, item.quantity - 1)} className="ml-1 px-2 bg-yellow-500 text-white rounded">-</button>
+</td>
+
     </tr>
   )
 }
