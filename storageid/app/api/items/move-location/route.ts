@@ -1,20 +1,14 @@
-// app/api/items/move-location/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '../../../lib/db/prisma'
 
 export async function POST(req: Request) {
-  const { itemId, locationId } = await req.json()
+  const { itemId } = await req.json()
 
   try {
     await prisma.item.update({
       where: { id: itemId },
       data: {
-        container: {
-          connect: {
-            id: null, // remove container
-          },
-        },
-        containerId: null, // remove reference to any container
+        containerId: null, // ✅ This is enough to remove the link
       },
     })
 
@@ -24,3 +18,4 @@ export async function POST(req: Request) {
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
+
