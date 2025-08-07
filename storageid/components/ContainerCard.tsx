@@ -3,16 +3,8 @@
 import { useState } from 'react'
 import {Item}  from '@prisma/client'
 import ItemRow from './ItemRow'
-export type ContainerWithDetails = {
-  id: string
-  name: string
-  locationId: string | null
-  parentId: string | null
-  location?: { id: string; name: string } | null
-  items: Item[]
-  parent?: ContainerWithDetails | null
-  children?: ContainerWithDetails[]
-}
+import { ContainerWithDetails } from '@/app/types'
+
 async function moveToLocation(containerId: string, locationId: string) {
   const res = await fetch('/api/containers/move-location', {
     method: 'POST',

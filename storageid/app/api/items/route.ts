@@ -6,11 +6,20 @@ import { ContainerWithDetails } from '@/app/types'
 export async function GET() {
   try {
     const containers = await prisma.container.findMany({
-      include: {
-        items: true,
-        location: true,
+  include: {
+    items: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        containerId: true,
+        quantity: true, // <-- THIS LINE IS THE FIX
       },
-    })
+    },
+    location: true,
+  },
+})
 
     const locations = await prisma.location.findMany({
       select: {
