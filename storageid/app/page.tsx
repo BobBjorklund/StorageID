@@ -30,9 +30,10 @@ function buildContainerTree(containers: ContainerWithDetails[]): ContainerWithDe
 }
 
 export default function HomePage() {
+  <Suspense>
   const searchParams = useSearchParams()
   const q = searchParams.get('q')?.toLowerCase() || ''
-
+</Suspense>
   const [data, setData] = useState<{
     locations: {
       id: string
