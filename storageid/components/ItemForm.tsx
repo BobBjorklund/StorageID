@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
+import Uploader from './MyUploadButton'
 export default function ItemForm({
   containers = []
 }: {
@@ -74,6 +74,7 @@ export default function ItemForm({
             />
           </div>
         )}
+        <Uploader />
       </div>
 
       <div className="space-y-1">

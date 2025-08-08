@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Item } from '@prisma/client'
-import Uploader from './UploadButton'
+import Uploader from './MyUploadButton'
 export default function ItemRow({
   item,
   containers,
