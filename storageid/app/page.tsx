@@ -102,11 +102,7 @@ export default function HomePage() {
 
             {tree.length > 0 ? (
               tree.map(container => (
-                <ContainerCard
-                  key={container.id}
-                  container={container}
-                  
-                />
+                <ContainerCard key={container.id} container={container} allContainers={allContainers} allLocations={allLocations} />
               ))
             ) : (
               <p className="text-sm text-gray-500 italic">No containers match your search.</p>

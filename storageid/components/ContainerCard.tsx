@@ -40,7 +40,7 @@ export default function ContainerCard({
   allLocations,
 }: {
   container: ContainerWithDetails
-  allContainers: ContainerWithDetails[]
+  allContainers: ContainerWithDetails[]|{ id: string; name: string; locationId: string | null }[]
   allLocations: { id: string; name: string }[]
 }) {
   const getHierarchy = (c?: ContainerWithDetails | null): string[] => {
