@@ -3,6 +3,22 @@
 import ItemRow from './ItemRow'
 import { ContainerWithDetails } from '@/app/types'
 
+async function deleteContainer(containerId: string) {
+  if (!confirm('Are you sure you want to delete this container and all its items?')) return
+
+  const res = await fetch(`/api/containers/delete`, {
+    method: 'POST',
+    body: JSON.stringify({ containerId }),
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  if (res.ok) {
+    alert('Deleted!')
+    location.reload()
+  } else {
+    alert('Failed to delete container.')
+  }
+}
 async function moveToLocation(containerId: string, locationId: string) {
   const res = await fetch('/api/containers/move-location', {
     method: 'POST',
