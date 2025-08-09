@@ -29,17 +29,19 @@ export const OurFileRouter = {
       
     })
   })
-  .onUploadComplete(async ({ file, metadata }) => {
-    console.log('✅ Upload complete:', {
-      name: file.name,
-      size: file.size,
-      url: file.url,
-      key: file.key,
-      type: file.type // Server-validated MIME type
-    });
-    
-    return { fileUrl: file.url }
-  }),
+ .onUploadComplete(async ({ file, metadata }) => {
+  const fileUrl = `https://utfs.io/f/${file.key}`; // safe & future-proof
+
+  console.log('✅ Upload complete:', {
+    name: file.name,
+    size: file.size,
+    url: fileUrl,
+    key: file.key,
+    type: file.type // Server-validated MIME type
+  });
+
+  return { fileUrl };
+})
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof OurFileRouter;

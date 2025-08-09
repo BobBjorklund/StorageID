@@ -1,21 +1,41 @@
-'use client'
+'use client';
 
-import { UploadButton } from '@/utils/uploadthing'
+import { UploadButton } from '@/utils/uploadthing';
 
-export default function MyUploadButton() {
+export default function MyUploadButton({ itemId, onSaved }: { itemId: string; onSaved?: (url: string) => void }) {
   return (
-   <UploadButton
-  endpoint="imageUploader"
-  onClientUploadComplete={(res) => {
-    console.log("✅ Upload complete (client)", res);
-    // Show the uploaded URL if present:
-    alert(`Uploaded ${res?.[0]?.name ?? "file"}`);
+    <UploadButton
+      endpoint="imageUploader"
+      onClientUploadComplete={async (res) => {
+        // Try serverData first (from onUploadComplete); fallback to res[0].url if present
+        const url = res?.[0]?.serverData.fileUrl ?? (res?.[0] as any)?.url;
+        if (!url) {
+          console.error('No URL returned from upload');
+          return;
+        }
+
+        // Save to DB
+        const r = await fetch('/api/items/set-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId, url }),
+        });
+
+        if (!r.ok) {
+          console.error('Failed to save image URL');
+          return;
+        }
+
+        onSaved?.(url); // optional: update UI without reload
+      }}
+      onUploadError={(err) => {
+        console.error('Upload error:', err);
+        alert(`Upload failed: ${err?.message ?? 'Unknown error'}`);
+      }}
+      appearance={{
+    button: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded",
+    container: "flex items-center gap-2"
   }}
-  onUploadError={(err) => {
-    // This often has useful info in prod
-    console.error("❌ Upload error (client):", err);
-    alert(`Upload failed: ${err?.message ?? "Unknown error"}`);
-  }}
-/>
-  )
+    />
+  );
 }
