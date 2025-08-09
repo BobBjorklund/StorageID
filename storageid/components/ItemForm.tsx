@@ -11,6 +11,7 @@ export default function ItemForm({
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [containerId, setContainerId] = useState(containers[0]?.id || '')
+  const [id, setId] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,7 +58,7 @@ export default function ItemForm({
         />
       </div>
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
         <input
           value={imageUrl}
@@ -75,7 +76,7 @@ export default function ItemForm({
           </div>
         )}
         <Uploader />
-      </div>
+      </div> */}
 
       <div className="space-y-1">
         <label className="block text-sm font-medium text-gray-700">Container</label>
