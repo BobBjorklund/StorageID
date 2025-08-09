@@ -1,18 +1,16 @@
-'use client';
+'use client'
 
-import { UploadButton } from "@uploadthing/react";
-import type { OurFileRouter } from "@/uploadthing.config";
+import { UploadButton } from '@/utils/uploadthing'
 
-export default function Uploader() {
+export default function MyUploadButton() {
   return (
-    <UploadButton<OurFileRouter, "imageUploader">
+    <UploadButton
       endpoint="imageUploader"
-      url="/api/uploadthing/core" // 👈 This matches your file path if you deployed it under /api/uploadthing/core.ts
       onClientUploadComplete={(res) => {
-        console.log("Upload complete!", res)
+        console.log('✅ Upload complete', res)
       }}
       onUploadError={(error) => {
-        console.error("Upload failed", error)
+        console.error('❌ Upload failed', error)
       }}
     />
   )
