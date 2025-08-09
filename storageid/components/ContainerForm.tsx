@@ -34,26 +34,28 @@ export default function ContainerForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-4 sm:p-6 rounded-xl shadow mb-8 space-y-5"
+      className="rounded-lg border border-gray-200 bg-white shadow-sm p-1 sm:p-1 sm:px-1 space-y-1"
     >
-      <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Add New Container</h3>
+      <h3 className="text-sm sm:text-base font-semibold text-gray-800">Add New Container</h3>
 
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">Name</label>
+      {/* Name */}
+      <div>
+        <label className="mb-1 block text-[11px] font-medium text-gray-700">Name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full border rounded p-2 text-sm"
+          className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
 
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">Location</label>
+      {/* Location */}
+      <div>
+        <label className="mb-1 block text-[11px] font-medium text-gray-700">Location</label>
         <select
           value={locationId}
           onChange={(e) => setLocationId(e.target.value)}
-          className="w-full border rounded p-2 text-sm"
+          className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         >
           {locations.length > 0 ? (
             locations.map((loc) => (
@@ -67,14 +69,15 @@ export default function ContainerForm({
         </select>
       </div>
 
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">
+      {/* Parent Container */}
+      <div>
+        <label className="mb-1 block text-[11px] font-medium text-gray-700">
           Parent Container (optional)
         </label>
         <select
           value={parentId}
           onChange={(e) => setParentId(e.target.value)}
-          className="w-full border rounded p-2 text-sm"
+          className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         >
           <option value="">None</option>
           {containers.length > 0 ? (
@@ -89,9 +92,10 @@ export default function ContainerForm({
         </select>
       </div>
 
+      {/* Submit */}
       <button
         type="submit"
-        className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"
+        className="w-full sm:w-auto rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
       >
         Add Container
       </button>
