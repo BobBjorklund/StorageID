@@ -51,14 +51,14 @@ export default function ContainerCard({
     if (!c?.children) return
     for (const child of c.children) {
       set.add(child.id)
-      collectDescendants(child as any, set)
+      collectDescendants(child, set)
     }
   }
   const descendantIds = new Set<string>()
   collectDescendants(container, descendantIds)
 
   // Normalize allContainers to a minimal shape
-  const normalized = (allContainers as any[]).map(c => ({
+  const normalized = (allContainers as ContainerWithDetails[]).map(c => ({
     id: c.id,
     name: c.name,
     locationId: c.locationId ?? null,

@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react'
 import { Item } from '@prisma/client'
 import Uploader from './MyUploadButton'
+import Image from 'next/image'
 
 export default function ItemRow({
   item,
@@ -190,10 +191,13 @@ export default function ItemRow({
           {item.description || <span className="italic text-gray-400">None</span>}
         </p>
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt="Item"
-            className="rounded max-w-full max-h-32 object-contain border"
+          <Image
+           src={imageUrl}
+           alt={item.title || "Image alt not found"}
+           className="rounded max-w-full max-h-32 object-contain border"
+           width={200} // pick something appropriate
+           height={200}
+          style={{ objectFit: 'cover' }}
           />
         ) : (
           <div className="italic text-gray-400">No image</div>

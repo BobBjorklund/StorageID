@@ -8,7 +8,9 @@ export default function MyUploadButton({ itemId, onSaved }: { itemId: string; on
       endpoint="imageUploader"
       onClientUploadComplete={async (res) => {
         // Try serverData first (from onUploadComplete); fallback to res[0].url if present
-        const url = res?.[0]?.serverData.fileUrl ?? (res?.[0] as any)?.url;
+        type UploadResponse = { serverData?: { fileUrl?: string }; url?: string }
+const first = res?.[0] as UploadResponse | undefined
+const url = first?.serverData?.fileUrl ?? first?.url
         if (!url) {
           console.error('No URL returned from upload');
           return;
