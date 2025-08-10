@@ -19,7 +19,9 @@ export default function ItemRow({
   const [targetLocationId, setTargetLocationId] = useState<string>('')
   const [imageUrl, setImageUrl] = useState<string>(item.imageUrl ?? '')
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
-const [moveTab, setMoveTab] = useState<'location' | 'container'>('location')
+  const [moveTab, setMoveTab] = useState<'location' | 'container'>('location')
+  // NEW: controlled quantity input (no styling changes)
+  const [qtyInput, setQtyInput] = useState<string>(String(item.quantity))
 
   // derive current location via item's container
   const currentLocationId = useMemo(() => {
@@ -35,6 +37,12 @@ const [moveTab, setMoveTab] = useState<'location' | 'container'>('location')
       .filter((c) => c.locationId === currentLocationId && c.id !== item.containerId)
       .sort((a, b) => a.name.localeCompare(b.name))
   }, [containers, currentLocationId, item.containerId])
+
+  function parseQty(val: string): number {
+    const n = Number.parseInt(val.replace(/[^\d-]/g, ''), 10)
+    if (Number.isNaN(n)) return 0
+    return Math.max(0, n)
+  }
 
   async function moveToContainer() {
     if (!targetContainerId) {
@@ -164,179 +172,208 @@ const [moveTab, setMoveTab] = useState<'location' | 'container'>('location')
         </div>
 
         <div
-  className={`transition-all duration-300 ease-in-out ${
-    isExpanded ? 'mt-2 max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
-  } overflow-hidden`}
->
-  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-    {/* LEFT SIDE */}
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:auto-rows-min">
-      {/* Row 1: Move | Actions */}
-      <section className="rounded-md border border-gray-200 bg-white/80 p-2 md:col-span-1 hover:border-indigo-200 transition-colors">
-        <div className="mb-2 flex items-center gap-2">
-          <h4 className="flex items-center gap-2 text-[11px] font-medium text-gray-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
-            Move
-          </h4>
-          {/* segmented control */}
-          <div className="ml-auto inline-flex overflow-hidden rounded border border-gray-300">
-            <button
-              type="button"
-              aria-pressed={moveTab === 'location'}
-              onClick={() => setMoveTab('location')}
-              className={`px-2 py-0.5 text-[11px] ${
-                moveTab === 'location' ? 'bg-gray-200 font-medium' : 'bg-white hover:bg-gray-50'
-              }`}
-            >
-              Location
-            </button>
-            <button
-              type="button"
-              aria-pressed={moveTab === 'container'}
-              onClick={() => setMoveTab('container')}
-              className={`px-2 py-0.5 text-[11px] border-l border-gray-300 ${
-                moveTab === 'container' ? 'bg-gray-200 font-medium' : 'bg-white hover:bg-gray-50'
-              }`}
-            >
-              Container
-            </button>
-          </div>
-        </div>
-
-        {/* LOCATION TAB */}
-        <div className={moveTab === 'location' ? 'block' : 'hidden'}>
-          <label className="mb-1 block text-[11px] font-medium text-gray-700">Select location</label>
-          <select
-            value={targetLocationId}
-            onChange={(e) => setTargetLocationId(e.target.value)}
-            className="mb-1 w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-          >
-            <option value="">Choose…</option>
-            {locations.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={moveToLocation}
-            className="w-full rounded bg-emerald-600 px-2 py-1 text-xs font-medium text-white transition hover:bg-emerald-700"
-          >
-            Move to Location
-          </button>
-        </div>
-
-        {/* CONTAINER TAB */}
-        <div className={moveTab === 'container' ? 'block' : 'hidden'}>
-          <label className="mb-1 mt-1 block text-[11px] font-medium text-gray-700">Select container</label>
-          <select
-            value={targetContainerId}
-            onChange={(e) => setTargetContainerId(e.target.value)}
-            className="mb-1 w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          >
-            <option value="">Choose…</option>
-            {eligibleContainers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={moveToContainer}
-            disabled={!targetContainerId}
-            className="w-full rounded bg-indigo-600 px-2 py-1 text-xs font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Move to Container
-          </button>
-        </div>
-      </section>
-
-      <section className="rounded-md border border-gray-200 bg-white/80 p-2 md:col-span-1">
-        <h4 className="mb-1 flex items-center gap-2 text-[11px] font-medium text-gray-700">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
-          Actions
-        </h4>
-        <div className="mb-1 flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => updateQty(item.id, item.quantity - 1)}
-            className="rounded bg-gray-600 px-2 py-0.5 text-xs font-semibold text-white transition hover:bg-gray-700"
-          >
-            −
-          </button>
-          <span className="min-w-[2.25rem] rounded border bg-white px-2 py-0.5 text-center text-xs font-medium">
-            {item.quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => updateQty(item.id, item.quantity + 1)}
-            className="rounded bg-gray-600 px-2 py-0.5 text-xs font-semibold text-white transition hover:bg-gray-700"
-          >
-            +
-          </button>
-        </div>
-        <button
-          type="button"
-          onClick={() => deleteItem(item.id)}
-          className="w-full rounded bg-red-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-red-600"
+          className={`transition-all duration-300 ease-in-out ${
+            isExpanded ? 'mt-2 max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
+          } overflow-hidden`}
         >
-          Delete
-        </button>
-      </section>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            {/* LEFT SIDE */}
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:auto-rows-min">
+              {/* Row 1: Move | Actions */}
+              <section className="rounded-md border border-gray-200 bg-white/80 p-2 md:col-span-1 hover:border-indigo-200 transition-colors">
+                <div className="mb-2 flex items-center gap-2">
+                  <h4 className="flex items-center gap-2 text-[11px] font-medium text-gray-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
+                    Move
+                  </h4>
+                  {/* segmented control */}
+                  <div className="ml-auto inline-flex overflow-hidden rounded border border-gray-300">
+                    <button
+                      type="button"
+                      aria-pressed={moveTab === 'location'}
+                      onClick={() => setMoveTab('location')}
+                      className={`px-2 py-0.5 text-[11px] ${
+                        moveTab === 'location' ? 'bg-gray-200 font-medium' : 'bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      Location
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={moveTab === 'container'}
+                      onClick={() => setMoveTab('container')}
+                      className={`px-2 py-0.5 text-[11px] border-l border-gray-300 ${
+                        moveTab === 'container' ? 'bg-gray-200 font-medium' : 'bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      Container
+                    </button>
+                  </div>
+                </div>
 
-      {/* Row 2: Description spanning both columns */}
-      <section className="rounded-md border border-gray-200 bg-gray-50 p-2 md:col-span-2">
-        <h4 className="mb-1 text-[11px] font-medium text-gray-700">Description</h4>
-        <p className="text-xs leading-tight text-gray-700">
-          {item.description ? (
-            item.description
-          ) : (
-            <span className="italic text-gray-400">None</span>
-          )}
-        </p>
-      </section>
+                {/* LOCATION TAB */}
+                <div className={moveTab === 'location' ? 'block' : 'hidden'}>
+                  <label className="mb-1 block text-[11px] font-medium text-gray-700">Select location</label>
+                  <select
+                    value={targetLocationId}
+                    onChange={(e) => setTargetLocationId(e.target.value)}
+                    className="mb-1 w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  >
+                    <option value="">Choose…</option>
+                    {locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={moveToLocation}
+                    className="w-full rounded bg-emerald-600 px-2 py-1 text-xs font-medium text-white transition hover:bg-emerald-700"
+                  >
+                    Move to Location
+                  </button>
+                </div>
 
-      {/* Row 3: Uploader spanning both columns */}
-      <section className="rounded-md border border-gray-200 bg-white/80 p-2 md:col-span-2">
-        <h4 className="mb-1 flex items-center gap-2 text-[11px] font-medium text-gray-700">
-          <span className="h-1.5 w-1.5 rounded-full bg-sky-500" aria-hidden="true" />
-          Upload
-        </h4>
-        <div className="[&_*button]:text-xs [&_*button]:px-2 [&_*button]:py-1 sm:[&_*button]:text-sm">
-          <Uploader itemId={item.id} onSaved={(url) => setImageUrl(url)} />
-        </div>
-      </section>
-    </div>
+                {/* CONTAINER TAB */}
+                <div className={moveTab === 'container' ? 'block' : 'hidden'}>
+                  <label className="mb-1 mt-1 block text-[11px] font-medium text-gray-700">Select container</label>
+                  <select
+                    value={targetContainerId}
+                    onChange={(e) => setTargetContainerId(e.target.value)}
+                    className="mb-1 w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  >
+                    <option value="">Choose…</option>
+                    {eligibleContainers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={moveToContainer}
+                    disabled={!targetContainerId}
+                    className="w-full rounded bg-indigo-600 px-2 py-1 text-xs font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Move to Container
+                  </button>
+                </div>
+              </section>
 
-    {/* RIGHT SIDE: Image */}
-    <div>
-      <section className="rounded-md border border-gray-200 bg-gray-50 p-2">
-        <h4 className="mb-1 text-[11px] font-medium text-gray-700">Image</h4>
-        {imageUrl ? (
-          <div className="relative w-full overflow-hidden rounded border">
-            <div className="relative w-full aspect-video max-h-64">
-              <Image
-                src={imageUrl}
-                alt={item.title || 'Item image'}
-                fill
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className="object-contain"
-              />
+              <section className="rounded-md border border-gray-200 bg-white/80 p-2 md:col-span-1">
+                <h4 className="mb-1 flex items-center gap-2 text-[11px] font-medium text-gray-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
+                  Actions
+                </h4>
+                <div className="mb-1 flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = parseQty(qtyInput)
+                      const next = Math.max(0, cur - 1)
+                      setQtyInput(String(next))
+                      void updateQty(item.id, next)
+                    }}
+                    className="rounded bg-gray-600 px-2 py-0.5 text-xs font-semibold text-white transition hover:bg-gray-700"
+                  >
+                    −
+                  </button>
+
+                  {/* REPLACED span with input (same classes, no styling change) */}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    step={1}
+                    value={qtyInput}
+                    onChange={(e) => setQtyInput(e.target.value)}
+                    onBlur={() => {
+                      const next = parseQty(qtyInput)
+                      if (next !== item.quantity) {
+                        void updateQty(item.id, next)
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        // Commit on Enter
+                        (e.currentTarget as HTMLInputElement).blur()
+                      }
+                    }}
+                    className="min-w-[2.25rem] rounded border bg-white px-2 py-0.5 text-center text-xs font-medium"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = parseQty(qtyInput)
+                      const next = cur + 1
+                      setQtyInput(String(next))
+                      void updateQty(item.id, next)
+                    }}
+                    className="rounded bg-gray-600 px-2 py-0.5 text-xs font-semibold text-white transition hover:bg-gray-700"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => deleteItem(item.id)}
+                  className="w-full rounded bg-red-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </section>
+
+              {/* Row 2: Description spanning both columns */}
+              <section className="rounded-md border border-gray-200 bg-gray-50 p-2 md:col-span-2">
+                <h4 className="mb-1 text-[11px] font-medium text-gray-700">Description</h4>
+                <p className="text-xs leading-tight text-gray-700">
+                  {item.description ? (
+                    item.description
+                  ) : (
+                    <span className="italic text-gray-400">None</span>
+                  )}
+                </p>
+              </section>
+
+              {/* Row 3: Uploader spanning both columns */}
+              <section className="rounded-md border border-gray-200 bg-white/80 p-2 md:col-span-2">
+                <h4 className="mb-1 flex items-center gap-2 text-[11px] font-medium text-gray-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sky-500" aria-hidden="true" />
+                  Upload
+                </h4>
+                <div className="[&_*button]:text-xs [&_*button]:px-2 [&_*button]:py-1 sm:[&_*button]:text-sm">
+                  <Uploader itemId={item.id} onSaved={(url) => setImageUrl(url)} />
+                </div>
+              </section>
+            </div>
+
+            {/* RIGHT SIDE: Image */}
+            <div>
+              <section className="rounded-md border border-gray-200 bg-gray-50 p-2">
+                <h4 className="mb-1 text-[11px] font-medium text-gray-700">Image</h4>
+                {imageUrl ? (
+                  <div className="relative w-full overflow-hidden rounded border">
+                    <div className="relative w-full aspect-video max-h-64">
+                      <Image
+                        src={imageUrl}
+                        alt={item.title || 'Item image'}
+                        fill
+                        sizes="(min-width: 768px) 50vw, 100vw"
+                        className="object-contain"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-48 w-full items-center justify-center rounded border border-dashed border-gray-300 bg-white">
+                    <span className="text-xs text-gray-400">No image</span>
+                  </div>
+                )}
+              </section>
             </div>
           </div>
-        ) : (
-          <div className="flex h-48 w-full items-center justify-center rounded border border-dashed border-gray-300 bg-white">
-            <span className="text-xs text-gray-400">No image</span>
-          </div>
-        )}
-      </section>
-    </div>
-  </div>
-</div>
-
-
+        </div>
       </div>
     </div>
   )

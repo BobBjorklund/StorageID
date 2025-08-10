@@ -10,6 +10,7 @@ export default function ItemForm({
 }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [quantity, setQuantity] = useState<string>('1')
   const [containerId, setContainerId] = useState(containers[0]?.id || '')
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -59,11 +60,13 @@ export default function ItemForm({
     e.preventDefault()
     if (!title.trim()) return alert('Title is required')
 
+    const qtyNumber = Math.max(0, Number.parseInt(quantity, 10) || 0)
+
     setLoading(true)
     try {
       const res = await fetch('/api/items', {
         method: 'POST',
-        body: JSON.stringify({ title, description, containerId }),
+        body: JSON.stringify({ title, description, quantity: qtyNumber, containerId }),
         headers: { 'Content-Type': 'application/json' },
       })
       if (!res.ok) throw new Error('Failed to add item')
@@ -79,6 +82,7 @@ export default function ItemForm({
       alert('Item added successfully!')
       setTitle('')
       setDescription('')
+      setQuantity('1')
       setFile(null)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Something went wrong')
@@ -112,6 +116,20 @@ export default function ItemForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
+          className="w-full rounded border border-gray-300 px-1 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </div>
+
+      {/* Quantity */}
+      <div>
+        <label className="mb-1 block text-[11px] font-medium text-gray-700">Quantity</label>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          step={1}
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
           className="w-full rounded border border-gray-300 px-1 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
       </div>
