@@ -405,7 +405,7 @@ export default function ContainerCard({
           </div>
 
           {/* Items Section */}
-          {/* {container.items.length > 0 && (
+          {container.items.length > 0 && (
             <div className="mt-1">
               <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
@@ -422,7 +422,7 @@ export default function ContainerCard({
                 ))}
               </div>
             </div>
-          )} */}
+          )}
 
           {/* Children Section */}
           {container.children && container.children.length > 0 && (
